@@ -13,12 +13,12 @@ import {
   StyleSheet,
   Text,
   View,
-  StatusBar,
   Navigator,
   NetInfo,
   Alert
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+//import Icon from 'react-native-vector-icons/FontAwesome';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Icon, Left, Right, Body, Badge, StatusBar } from 'native-base';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -32,20 +32,39 @@ const instructions = Platform.select({
 export default class App extends Component<> {
   constructor(props) {
     super(props);
-    this.state = { canGoBack: false };
+    this.state = { canGoBack: false, uri: 'https://www.onfarma.it/', postMessage: '0' };
     this.checkConnection();
   }
 
   render() {
+    const jsCode = "window.postMessage('document.getElementsByClassName('count')')";
+    onMessage = (e) => {
+      this.setState({ postMessage: e.nativeEvent.data });
+    };
+    this.checkConnection.bind(this);
     return (
+     
       <View style={styles.container}>
-        <View style={styles.topbar}>
-          <TouchableOpacity
-            disabled={!this.state.canGoBack}
-            onPress={this.onBack.bind(this)}>
-            <Icon name='chevron-left' size={20} style={this.state.canGoBack ? styles.topbarText : styles.topbarTextDisabled} />
-          </TouchableOpacity>
-        </View>
+        <Header style={styles.header}>
+            <Left style={{flex:1}}>
+              <TouchableOpacity
+                disabled={!this.state.canGoBack}
+                onPress={this.onBack.bind(this)}>
+              <Icon name='arrow-back' style={this.state.canGoBack ? styles.topbarText : styles.topbarTextDisabled} />
+              </TouchableOpacity>
+            </Left>
+            <Body style={{flex:1}}>
+              <Title>OnFarma</Title>
+            </Body>
+            <Right style={{flex:1}}>
+              <TouchableOpacity
+                onPress={this.goBasket.bind(this)}>
+              <Icon name='cart' />
+              </TouchableOpacity>
+              <Badge size='8' style={(this.state.postMessage=='0' || this.state.postMessage=='') ? styles.badgeIconNone : styles.badgeIconInclude}><Text>{this.state.postMessage}</Text></Badge>
+            </Right>
+        </Header>
+
         <View style={styles.containerWeb}>
         <WebView
           ref={WEBVIEW_REF}
@@ -54,7 +73,9 @@ export default class App extends Component<> {
           javaScriptEnabled={true}
           domStorageEnabled={true}
           startInLoadingState={true}
-          source={{uri: 'https://www.onfarma.it/'}} />
+          source={{uri: this.state.uri}}
+          injectedJavaScript={jsCode}
+          onMessage={this.onMessage} />
         </View>
       </View>
     );
@@ -64,11 +85,21 @@ export default class App extends Component<> {
     this.refs[WEBVIEW_REF].goBack();
   }
 
+  goBasket() {
+    this.state.uri = 'https://www.onfarma.it/carrello/';
+    this.canGoBack = true;
+    this.refs[WEBVIEW_REF].reload();
+  }
+
+  getCounter() {
+    this.setState({ postMessage: e.nativeEvent.data });
+  }
+
   checkConnection() {
     NetInfo.isConnected.fetch().then(isConnected => {
     console.log('First, is ' + (isConnected ? 'online' : 'offline'));
     // Works on both iOS and Android
-    if (isConnected==true)
+    if (isConnected)
     {
       Alert.alert(
         'Attenzione',
@@ -93,7 +124,7 @@ export default class App extends Component<> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15, /* Padding to push below the navigation bar */
+    //paddingTop: 15, /* Padding to push below the navigation bar */
     justifyContent: 'center',
     //alignItems: 'center',
     backgroundColor: '#F5FCFF',
@@ -105,6 +136,9 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
+  header: {
+    //backgroundColor: '#008848',
+  },
   topbar: {
     height: 40,
     paddingBottom: 10,
@@ -114,22 +148,41 @@ const styles = StyleSheet.create({
   topbarTextDisabled: {
     color: 'gray',
     paddingLeft: 8,
-    paddingTop: 15,
-    width: 100,
+    display: 'none',
+    //paddingTop: 15,
+    //width: 100,
     //position: 'absolute',
     //flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent:'space-between',
+    //flexDirection: 'row',
+    //alignItems: 'center',
+    //alignSelf: 'flex-end',
+    //justifyContent: 'space-between'
   },
   topbarText: {
-    //color: 'gray',
+    //color: 'white',
     paddingLeft: 8,
-    paddingTop: 15,
+    //paddingTop: 15,
+    //width: 100,
+    //position: 'absolute',
+    //flex: 1,
+    //flexDirection: 'row',
+    //alignItems: 'center',
+    //alignSelf: 'flex-end',
+    //justifyContent: 'space-between'
+  },
+  basketIcon: {
+    //color: 'gray',
+    paddingRight: 8,
+    //paddingTop: 15,
     width: 100,
     //flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
-  }
+    alignSelf: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  badgeIconNone: {
+    display: 'none',
+  },
+  badgeIconInclude: {}
 });
