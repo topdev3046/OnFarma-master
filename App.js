@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 //import Icon from 'react-native-vector-icons/FontAwesome';
 import { Container, Header, Title, Content, Footer, FooterTab, Button, Icon, Left, Right, Body, Badge, StatusBar } from 'native-base';
+import { DrawerNavigator } from "react-navigation";
+import SideBar from "./SideBar.js";
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -36,6 +38,7 @@ export default class App extends Component<> {
     this.checkConnection();
   }
 
+
   render() {
     const jsCode = "window.postMessage('document.getElementsByClassName('count')')";
     onMessage = (e) => {
@@ -44,20 +47,26 @@ export default class App extends Component<> {
     this.checkConnection.bind(this);
     return (
      
-      <View style={styles.container}>
+      <Container style={styles.container}>
         <Header style={styles.header}>
-            <Left style={{flex:1}}>
+            <Left style={{flex:1, flexDirection: 'row'}}>
               <TouchableOpacity
                 disabled={!this.state.canGoBack}
                 onPress={this.onBack.bind(this)}>
               <Icon name='arrow-back' style={this.state.canGoBack ? styles.topbarText : styles.topbarTextDisabled} />
               </TouchableOpacity>
+              <Button
+                transparent
+                onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+                <Icon name="menu" style={{color: 'black'}}/>
+              </Button>
             </Left>
             <Body style={{flex:1}}>
               <Title>OnFarma</Title>
             </Body>
             <Right style={{flex:1}}>
               <TouchableOpacity
+                transparent
                 onPress={this.goBasket.bind(this)}>
               <Icon name='cart' />
               </TouchableOpacity>
@@ -77,7 +86,7 @@ export default class App extends Component<> {
           injectedJavaScript={jsCode}
           onMessage={this.onMessage} />
         </View>
-      </View>
+      </Container>
     );
   }
 
@@ -141,7 +150,7 @@ const styles = StyleSheet.create({
   },
   topbar: {
     height: 40,
-    paddingBottom: 10,
+    //paddingBottom: 10,
     justifyContent: 'center',
     //alignItems: 'center',
   },
@@ -161,6 +170,8 @@ const styles = StyleSheet.create({
   topbarText: {
     //color: 'white',
     paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 8,
     //paddingTop: 15,
     //width: 100,
     //position: 'absolute',
